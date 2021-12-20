@@ -1,0 +1,52 @@
+---
+title: "Multiplying two integers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multiplying two integers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(rx86)
+```
+
+Perform multiplication of 167 * 28 without a mult opcode
+stores 167 in an accumulator as 0xa7 and adds 0xa7 to it 27 times
+by storing a counter as 0x1c and removing 0x01 from it each loop
+until the zero flag is set
+```{r}
+mult_asm <- readr::read_fwf(system.file("asm", "mult.asm", package = "rx86"), 
+                            col_positions = readr::fwf_widths(c(3, 6, 20)))
+colnames(mult_asm) <- c("addr", "bytecode", "instr")
+```
+```{r}
+# blank slate
+mem <- create_mem(len = 64)
+registers <- create_reg()
+```
+
+```{r}
+runasm(mult_asm)
+```
+
+```{r}
+# extract result from memory
+mem[sanitize(0x22)]
+#     0x22 
+# "0x1244" 
+as.integer(mem[sanitize(0x22)])
+# [1] 4676
+167*28
+# [1] 4676
+```
+
+# The book Code (Petzold) achieves this with a high and low bit calculation but 
+# I'm not sure how to adapt what I have for 8 bit where 0xff === -1

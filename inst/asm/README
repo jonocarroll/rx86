@@ -1,0 +1,14 @@
+#### mult.asm
+
+Based on 'Code: The Hidden Language of Computer Hardware and Software'
+
+https://en.wikipedia.org/wiki/Code:_The_Hidden_Language_of_Computer_Hardware_and_Software
+
+by Charles Petzold, this multiplies the values stored at addresses 0x20 (a) and 0x21 (b) and
+stores the result (a*b) at 0x22.
+
+This does not make use of a MUL operation but rather performs n=b additions of a.
+
+For this reason, it would be wise to set the value at 0x21 to be the smaller of the two.
+
+####

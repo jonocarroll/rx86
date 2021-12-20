@@ -1,0 +1,28 @@
+Package: rx86
+Type: Package
+Title: Simulated x86 assembly processing
+Version: 0.1.0
+Authors@R: c(
+ person("Jonathan", "Carroll", 
+        email = "rpkg@jcarroll.com.au", 
+        role = c("aut", "cre"), 
+        comment = c(ORCID = "0000-0002-1404-5264"))
+ )
+Maintainer: Jonathan Carroll <rpkg@jcarroll.com.au>
+Description: Convert (a subset of) disassembled x86 assembly code
+    to functional operations on a block of memory and registers, then 
+    execute the code in sequence.
+License: GPL (>=2)
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
+Imports: 
+    magrittr,
+    dplyr,
+    tidyr,
+    stringr,
+    tibble
