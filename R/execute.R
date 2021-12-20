@@ -30,11 +30,11 @@ runasm <- function(asm, step = FALSE, prog = FALSE) {
     next_arg1 <- code[sanitize(next_mem), "arg1"]
     next_arg2 <- code[sanitize(next_mem), "arg2"]
     if (next_arg2 == "") {
-      message(next_instruction, " ", next_arg1)
+      if (prog) message(next_instruction, " ", next_arg1)
       do.call(next_instruction, args = list(x = next_arg1))
       if (prog) showmem()
     } else {
-      message(next_instruction, " ", next_arg1, ", ", next_arg2)
+      if (prog) message(next_instruction, " ", next_arg1, ", ", next_arg2)
       do.call(next_instruction, args = list(x = next_arg1, y = next_arg2))
       if (prog) showmem()
     }

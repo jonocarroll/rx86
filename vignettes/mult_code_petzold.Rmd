@@ -24,6 +24,7 @@ by storing a counter as 0x1c and removing 0x01 from it each loop
 until the zero flag is set
 ```{r}
 mult_asm <- readr::read_fwf(system.file("asm", "mult.asm", package = "rx86"), 
+                            col_types = "ccc",
                             col_positions = readr::fwf_widths(c(3, 6, 20)))
 colnames(mult_asm) <- c("addr", "bytecode", "instr")
 ```
