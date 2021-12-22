@@ -18,94 +18,55 @@ knitr::opts_chunk$set(
 library(rx86)
 ```
 
-## try to convert with R
+At ruxcon 2011, the following code was shown on a banner for the Australian (then named) Defence Signals Directorate
 ```{r}
 dsd <- "6AAAAABbi8uDwx4zwDPSigOK
 ETLCiAM8AHQrg8EBg8MB6+wz
 /7/z+TEct0SlpGf5dRyl53US
 YQEE56Ri7Kdkj8IAABkcOsw="
 ```
+This is base-64 encoded, so let's decode it
 
 ```{r}
-b64 <- base64enc::base64decode(dsd)
+(b64 <- base64enc::base64decode(dsd))
 ```
 
-## cheat - use udis http://udis86.sourceforge.net/
+E8 is an x86 CALL instruction - if we assume this is bytecode and disassemble it (e.g. with udis, which needs to be [installed](http://udis86.sourceforge.net/))
 ```{r}
-disas <- system("udcli -x", input = paste(b64, collapse = " "), intern = TRUE)
+(disas <- system("udcli -x", input = paste(b64, collapse = " "), intern = TRUE))
 ```
 
+then read this as a data.frame
 ```{r}
-asm <- readr::read_fwf(paste(disas, collapse = "\n"), col_positions = readr::fwf_widths(c(16, 16, 21)))
+asm <- suppressWarnings(
+  readr::read_fwf(paste(disas, collapse = "\n"), 
+                  col_types = "ccc",
+                  col_positions = readr::fwf_widths(c(16, 16, 21)))
+)
 colnames(asm) <- c("addr", "bytecode", "instr")
 # trim the leading 0s from addr since this is all we're using
 asm$addr <- substr(asm$addr, nchar(asm$addr)-1, nchar(asm$addr))
+asm
 ```
-
-
-# int3 is an interrupt but let's generalise it to a halt because we'll be done
+This appears to be a sequential operation from `0x00` to `0x21` with a loop back to 
+`0xf` until `al == 0x0` at which point it jumps to the end at `0x46`. 
+`int3` is an interrupt but let's generalise it to a `halt` because we'll be done
 ```{r}
 asm[33, "instr"] <- "halt"
 ```
-
-```
-# 0000000000000000 e800000000       call 0x5                ; push 0x5 onto the stack
-# 0000000000000005 5b               pop ebx                 ; pop that into ebx
-# 0000000000000006 8bcb             mov ecx, ebx            ; copy it to ecx
-# 0000000000000008 83c31e           add ebx, 0x1e           ; add 0x1e to ebx (0x5) = 0x23
-
-as.hexmode(0x5 + 0x1e)
-# [1] 23
-
-# 000000000000000b 33c0             xor eax, eax            ; xor eax with itself (0x0)
-# 000000000000000d 33d2             xor edx, edx            ; xor edx with itself (0x0)
-# 000000000000000f 8a03             mov al, [ebx]           ; copy the value at ebx (0x23) to al (0x33ff)
-# 0000000000000011 8a11             mov dl, [ecx]           ; copy the value at exc (0x5) to dl
-# 0000000000000013 32c2             xor al, dl              ; xor al and dl, storing in al
-
-bitwXor(0x23, 0x5)
-# [1] 38
-
-# 0000000000000015 8803             mov [ebx], al           ; copy al (0x38) to value at ebx (0x23) (0x33ff)
-# 0000000000000017 3c00             cmp al, 0x0             ; compare al to 0x0
-# 0000000000000019 742b             jz 0x46                 ; if that result is 0, jump to 0x46
-
-
-
-# 000000000000001b 83c101           add ecx, 0x1
-# 000000000000001e 83c301           add ebx, 0x1
-# 0000000000000021 ebec             jmp 0xf
-# 0000000000000023 33ff             xor edi, edi
-# 0000000000000025 bff3f9311c       mov edi, 0x1c31f9f3
-# 000000000000002a b744             mov bh, 0x44
-# 000000000000002c a5               movsd
-# 000000000000002d a4               movsb
-# 000000000000002e 67f9             a16 stc
-# 0000000000000030 751c             jnz 0x4e
-# 0000000000000032 a5               movsd
-# 0000000000000033 e775             out 0x75, eax
-# 0000000000000035 126101           adc ah, [ecx+0x1]
-# 0000000000000038 04e7             add al, 0xe7
-# 000000000000003a a4               movsb
-# 000000000000003b 62ec             invalid
-# 000000000000003d a7               cmpsd
-# 000000000000003e 648fc2           pop edx
-# 0000000000000041 0000             add [eax], al
-# 0000000000000043 191c3a           sbb [edx+edi], ebx
-# 0000000000000046 cc               int3
-```
+We can run this with `rx86`... we need a memory array and some registers
 ```{r}
-## we need a way to run the code via the memory array
-# blank slate
 mem <- create_mem()
 registers <- create_reg()
 ```
-
+Then we can run the code
 ```{r}
 runasm(asm)
 ```
-
+The 'code' part of the asm is stored in `0x00` to `0x21` with the remaining addresses being used for temporary storage, from `0x23`. The operations encoded 
+perform an `XOR` between the values stored at `0x05` through to `0x21` with those starting at `0x23`, storing the results starting at `0x23`.
+Extracting the memory from this offset onwards (up to where it zeroes) results in
 ```{r}
-mem_offset <- mem[which(names(mem) == "0x23"):length(mem)]
+(mem_offset <- mem[which(names(mem) == "0x23"):length(mem)])
 hex2string(mem_offset)
 ```

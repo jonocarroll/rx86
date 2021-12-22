@@ -18,36 +18,44 @@ knitr::opts_chunk$set(
 library(rx86)
 ```
 
-Perform multiplication of 167 * 28 without a mult opcode
-stores 167 in an accumulator as 0xa7 and adds 0xa7 to it 27 times
-by storing a counter as 0x1c and removing 0x01 from it each loop
-until the zero flag is set
+Perform multiplication of 167 * 28 without a MUL opcode. This was inspired by 
+['Code: The Hidden Language of Computer Hardware and Software'](https://en.wikipedia.org/wiki/Code:_The_Hidden_Language_of_Computer_Hardware_and_Software) by Charles Petzold where a 8-bit values were multiplied, requiring add-with-carry operations. For simplicity (and because I don't know how to emulate `hex(-1) == 0xff` without an actual 8-bit computer) I've converted it to just multiplying the two values without needing any carry registers. I have not updated the bytecode, so that is mostly meaningless.
+
+Stores the value 167 in an accumulator as `0xa7` and adds `0xa7` to it 27 times
+by storing a counter as `0x1c` and removing `0x01` from it each loop
+until the zero flag is set. The result is stored in `0x22`.
+
+The asm code for this is stored along with the package.
 ```{r}
-mult_asm <- readr::read_fwf(system.file("asm", "mult.asm", package = "rx86"), 
-                            col_types = "ccc",
-                            col_positions = readr::fwf_widths(c(3, 6, 20)))
+mult_asm <- suppressWarnings(
+  readr::read_fwf(system.file("asm", "mult.asm", package = "rx86"), 
+                  col_types = "ccc",
+                  col_positions = readr::fwf_widths(c(3, 6, 20)))
+)
 colnames(mult_asm) <- c("addr", "bytecode", "instr")
+print(mult_asm)
 ```
+
+In order to evaluate this code we require a memory array and some registers
 ```{r}
-# blank slate
 mem <- create_mem(len = 64)
 registers <- create_reg()
 ```
 
+The code can be evaluated, which will modify the memory array and registers
+according to the operations
 ```{r}
 runasm(mult_asm)
 ```
 
+The final result can be extracted but it is still a hex value
 ```{r}
-# extract result from memory
 mem[sanitize(0x22)]
-#     0x22 
-# "0x1244" 
-as.integer(mem[sanitize(0x22)])
-# [1] 4676
-167*28
-# [1] 4676
 ```
 
-# The book Code (Petzold) achieves this with a high and low bit calculation but 
-# I'm not sure how to adapt what I have for 8 bit where 0xff === -1
+Converting it to an integer gives the expected result
+```{r}
+as.integer(mem[sanitize(0x22)])
+
+167*28
+```
