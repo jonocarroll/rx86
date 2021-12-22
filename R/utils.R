@@ -28,7 +28,7 @@ hex2string <- function(hex) {
 #' @return the ASCII representation of the input as a single UTF8 string
 #' @export
 bin2ascii <- function(bin) {
-  nolb <- gsub("\n", " ", x)
+  nolb <- gsub("\n", " ", bin)
   split <- strsplit(split_pairs(paste(nolb, collapse = " "), split = " "), ",")[[1]]
   ints <- strtoi(split, base = 2)
   intToUtf8(ints)

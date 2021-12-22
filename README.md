@@ -42,6 +42,24 @@ mult_asm <- suppressWarnings(
                   col_positions = readr::fwf_widths(c(3, 6, 20)))
 )
 colnames(mult_asm) <- c("addr", "bytecode", "instr")
+print(mult_asm)
+#> # A tibble: 14 x 3
+#>    addr  bytecode instr         
+#>    <chr> <chr>    <chr>         
+#>  1 00    101005   mov al, [0x22]
+#>  2 03    201001   add al, [0x20]
+#>  3 06    111005   mov [0x22], al
+#>  4 09    101004   mov al, [0x21]
+#>  5 0c    221000   sub al, 0x01  
+#>  6 0f    111004   mov 0x21, al  
+#>  7 12    101003   jnz 0x00      
+#>  8 15    20001e   halt          
+#>  9 18    111003   invalid       
+#> 10 1b    330000   invalid       
+#> 11 1e    ff00     invalid       
+#> 12 20    a7       data 167      
+#> 13 21    1c       data 28       
+#> 14 22    00       result
 
 # create blank slate of memory and registers
 mem <- create_mem(len = 64)
@@ -52,9 +70,46 @@ runasm(mult_asm)
 # extract result from memory and convert to integer
 as.integer(mem[sanitize(0x22)])
 #> [1] 4676
+
+167*28
+#> [1] 4676
 ```
 
 This is detailed in `vignette("mult_code_petzold", package = "rx86")`.
+
+What test is complete without a helloworld?
+
+``` r
+hello_asm <- suppressWarnings(
+  readr::read_fwf(system.file("asm", "helloworld.asm", package = "rx86"), 
+                  col_types = "ccc",
+                  col_positions = readr::fwf_widths(c(3, 3, 20)))
+)
+colnames(hello_asm) <- c("addr", "bytecode", "instr")
+print(hello_asm)
+#> # A tibble: 23 x 3
+#>    addr  bytecode instr        
+#>    <chr> <chr>    <chr>        
+#>  1 00    10       mov ecx, 0x0e
+#>  2 01    10       mov al, 0x08 
+#>  3 02    10       mov eax, [al]
+#>  4 03    cc       int 0x80     
+#>  5 04    28       sub ecx, 0x01
+#>  6 05    70       jz 0x17      
+#>  7 06    05       add al, 0x01 
+#>  8 07    e9       jmp 0x02     
+#>  9 08    48       data         
+#> 10 09    65       data         
+#> # … with 13 more rows
+
+mem <- create_mem()
+registers <- create_reg()
+
+runasm(hello_asm)
+#> Hello, world!
+```
+
+This is detailed in `vignette("helloworld", package = "rx86")`.
 
 ## Inspiration
 

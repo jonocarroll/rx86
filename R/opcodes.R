@@ -2,7 +2,7 @@
 #' @keywords internal
 opcodes <- c("call", "pop", "mov", "add", "sub",
              "xor", "halt", "jmp", "jz", "jnz",
-             "cmp", "a16", "movsd")
+             "cmp", "a16", "movsd", "int")
 
 
 #' Opcodes (x86 assembly operations)
@@ -121,6 +121,17 @@ jmp <- function(x) {
 #' @rdname opcodes
 #' @export
 jnz <- jz <- jmp
+
+
+#' @rdname int
+#' @export
+int <- function(x) {
+  # specific interrupts correspond to specific actions
+  # but let's just encode 0x80 as write
+  # whatever is in eax via cat after transforming to character
+  if (x == sanitize(0x80)) cat(rawToChar(as.raw(strtoi(registers$eax, 16L))))
+  return(invisible(NULL))
+}
 
 
 #' @rdname opcodes

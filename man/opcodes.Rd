@@ -15,7 +15,7 @@
 \alias{halt}
 \title{opcodes (mnemonics) to separate from arguments}
 \format{
-An object of class \code{character} of length 13.
+An object of class \code{character} of length 14.
 }
 \usage{
 opcodes

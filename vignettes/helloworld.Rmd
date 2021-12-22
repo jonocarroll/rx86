@@ -1,0 +1,50 @@
+---
+title: "Hello, World!"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hello, World!}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(rx86)
+```
+
+Of course, we need a helloworld example. Most of the asm examples use the 
+human-readable version with a string and system calls - that's too fancy for me. 
+
+Here I have hand-crafted the bytecode which outputs (via `int 0x80` - a custom
+function which prints whatever is in the register `eax` to screen as character) 
+the appropriate characters which are read directly from memory.
+
+I wrote each line of this asm myself, so I really feel like I've actually "programmed" a computer for once, with some odd combination of zero dependencies (it's machine code!) and waaay too many (I use an R package to evaluate it).
+
+The code is stored in this package. It stores the raw hex values for the characters of "Hello, world!" in the memory addresses starting at `0x08`. The 'code' is in the addresses prior to that, where the hex value for 14 (`0x0e`) is stored in `ecx`. `0x08` - the location of the first byte of the string, is moved to the accumulator `al`. The value at that address (the actual first byte of the string) is moved to `eax` which is the register from which the "system" will write to screen. The interrupt `int 0x80` signals this, and the first byte is converted to character and printed. `0x01` is subtracted from `ecx` (this is now counting how many characters remain to be printed) and if that results in zero (via the zero flag) then the code will jump to `0x17` which is a `halt`. Otherwise, `0x01` is added to the accumulator (holding the address of the next byte to read) and the code jumps back to `0x02`, loading the next byte into `eax`.
+```{r}
+hello_asm <- suppressWarnings(
+  readr::read_fwf(system.file("asm", "helloworld.asm", package = "rx86"), 
+                  col_types = "ccc",
+                  col_positions = readr::fwf_widths(c(3, 3, 20)))
+)
+colnames(hello_asm) <- c("addr", "bytecode", "instr")
+print(hello_asm)
+```
+As always, set up memory and registers
+```{r}
+mem <- create_mem()
+registers <- create_reg()
+```
+Then we can run the code - this time we don't need to extract the memory
+afterwards, the interrupt signals that the value in the `eax` register should be 
+output to screen
+```{r}
+runasm(hello_asm)
+```
