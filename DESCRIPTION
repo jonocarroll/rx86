@@ -26,3 +26,5 @@ Imports:
     tidyr,
     stringr,
     tibble
+URL: https://github.com/jonocarroll/rx86
+BugReports: https://github.com/jonocarroll/rx86/issues
