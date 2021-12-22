@@ -38,6 +38,7 @@ wondered if I could do it entirely from R.
 A small, more general example, is to perform multiplication
 ```{r example}
 library(rx86)
+
 ## load some asm instructions which store the 
 ## the numbers 167 and 28, multiplies them, 
 ## and stores the result in 0x22

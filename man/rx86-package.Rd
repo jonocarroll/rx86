@@ -6,9 +6,15 @@
 \alias{rx86-package}
 \title{rx86: Simulated x86 assembly processing}
 \description{
-Convert (a subset of) disassembled x86 assembly code
-    to functional operations on a block of memory and registers, then 
-    execute the code in sequence.
+Convert (a subset of) disassembled x86 assembly code to functional operations on a block of memory and registers, then execute the code in sequence.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/jonocarroll/rx86}
+  \item Report bugs at \url{https://github.com/jonocarroll/rx86/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Jonathan Carroll \email{rpkg@jcarroll.com.au} (\href{https://orcid.org/0000-0002-1404-5264}{ORCID})
