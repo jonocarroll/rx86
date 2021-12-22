@@ -20,7 +20,10 @@ remotes::install_github("jonocarroll/rx86")
 
 ## Motivation
 
-This is a basic example which shows you how to solve a common problem:
+See [this]() blogpost, but I wanted to be able to ‘run’ some x86
+assembly code and wondered if I could do it entirely from R.
+
+A small, more general example, is to perform multiplication
 
 ``` r
 library(rx86)
@@ -29,7 +32,6 @@ library(rx86)
 #> The following objects are masked from 'package:base':
 #> 
 #>     call, parse, sub, xor
-
 ## load some asm instructions which store the 
 ## the numbers 167 and 28, multiplies them, 
 ## and stores the result in 0x22
