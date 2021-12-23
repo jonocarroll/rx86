@@ -123,7 +123,7 @@ jmp <- function(x) {
 jnz <- jz <- jmp
 
 
-#' @rdname int
+#' @rdname opcodes
 #' @export
 int <- function(x) {
   # specific interrupts correspond to specific actions

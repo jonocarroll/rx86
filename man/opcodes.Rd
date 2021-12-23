@@ -12,6 +12,7 @@
 \alias{cmp}
 \alias{jmp}
 \alias{jnz}
+\alias{int}
 \alias{halt}
 \title{opcodes (mnemonics) to separate from arguments}
 \format{
@@ -37,6 +38,8 @@ cmp(x, y)
 jmp(x)
 
 jnz(x)
+
+int(x)
 
 halt(x)
 }

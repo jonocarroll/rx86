@@ -20,8 +20,9 @@ remotes::install_github("jonocarroll/rx86")
 
 ## Motivation
 
-See [this]() blogpost, but I wanted to be able to ‘run’ some x86
-assembly code and wondered if I could do it entirely from R.
+See [this](https://jcarroll.com.au/2021/12/23/adventures-in-x86-asm/)
+blogpost, but I wanted to be able to ‘run’ some x86 assembly code and
+wondered if I could do it entirely from R.
 
 A small, more general example, is to perform multiplication
 
@@ -135,11 +136,14 @@ help you understand what it’s doing.
 The following is a non-exhaustive list of the known limitations of this
 package.
 
--   This was built so support a single use-case of solving the puzzle
-    described in \``vignette("dsd_ruxcon_challenge", package = "rx86")`
-    so only has support for the opcodes required for that. That covers a
-    lot of possibilities, but if you need a `DIV` you’re out of luck so
-    far.
+-   This was originally built to support a single use-case of solving
+    the puzzle described in
+    \``vignette("dsd_ruxcon_challenge", package = "rx86")` so only has
+    support for the opcodes required for that. That covers a lot of
+    possibilities, but if you need a `DIV` you’re out of luck so far.
+-   The operations supported do so *in spirit* and are not exact
+    reproductions of functionality - if this does something different to
+    real asm, that’s not too surprising.
 -   This takes as input a `data.frame` of disassembled code. This has
     only been tested with the output of
 
